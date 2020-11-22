@@ -193,7 +193,7 @@ public class WumpusWorld {
 					str.append('S');
 					letterCounter++;
 				}
-				if(cell.isWindPresent()){
+				if(cell.isWindPresent() && !cell.isHolePresent()){
 					str.append('I');
 					letterCounter++;
 				}
