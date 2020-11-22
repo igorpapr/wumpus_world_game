@@ -22,6 +22,7 @@ public class WumpusWorld {
 	public WumpusWorld() {
 		random.setSeed(0); //specify some another seed if needed
 		isGameOver = false;
+		isWumpusAlive = true;
 		initializeWorld();
 		agent.setCurrentCell(getCellByCoordinates(0, 0));
 	}
