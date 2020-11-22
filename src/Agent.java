@@ -1,11 +1,11 @@
 public class Agent {
 	private Cell currentCell;
 
-	private AgentDirection direction;
+	private AgentDirection direction = AgentDirection.RIGHT;
 
-	private boolean hasArrow;
+	private boolean hasArrow = true;
 
-	private boolean knowsWumpusAlive;
+	private boolean knowsWumpusAlive = false;
 
 	public void turnRight(){
 		turn(true);
