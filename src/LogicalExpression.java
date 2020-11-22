@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public class LogicalExpression {
     private String symbol;
@@ -64,7 +61,7 @@ public class LogicalExpression {
         return res;
     }
 
-    public boolean plTrue(Map<String, Boolean> model) {
+    public boolean plTrue(HashMap<String, Boolean> model) {
         if (symbol != null)
             return model.getOrDefault(symbol, false);
 
@@ -94,5 +91,31 @@ public class LogicalExpression {
         }
 
         return false;
+    }
+
+    public static boolean ttEntails(LogicalExpression KB, LogicalExpression alpha) {
+        var symbols = KB.extractSymbols();
+        symbols.addAll(alpha.extractSymbols());
+        return false;
+    }
+
+    public static boolean ttCheckAll(LogicalExpression KB,
+                                     LogicalExpression alpha,
+                                     ArrayList<String> symbols,
+                                     HashMap<String, Boolean> model) {
+        if (symbols.isEmpty())
+            return !KB.plTrue(model) || alpha.plTrue(model);
+        else {
+            var rest = new ArrayList<>(symbols);
+            var symbol = rest.remove(0);
+            return ttCheckAll(KB, alpha, rest, extend(symbol, true, model)) &&
+                    ttCheckAll(KB, alpha, rest, extend(symbol, false, model));
+        }
+    }
+
+    private static HashMap<String, Boolean> extend(String symbol, boolean value, HashMap<String, Boolean> model) {
+        var res = new HashMap<String, Boolean>(model);
+        model.put(symbol, value);
+        return res;
     }
 }
