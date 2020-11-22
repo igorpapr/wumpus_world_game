@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Cell {
 
 	private final int row;
@@ -17,6 +19,20 @@ public class Cell {
 	public Cell(int row, int col) {
 		this.row = row;
 		this.col = col;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Cell cell = (Cell) o;
+		return row == cell.row &&
+				col == cell.col;
+	}
+
+	@Override
+	public int hashCode() {
+		return 13 * Objects.hash(row, col);
 	}
 
 	public boolean isWumpusPresent() {

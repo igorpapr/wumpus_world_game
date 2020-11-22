@@ -77,18 +77,27 @@ public class WumpusWorld {
 			agent.setCurrentCell(cell);
 			if (cell.isWumpusPresent() && isWumpusAlive){
 				isGameOver = true;
-				System.err.println("Agent has died from the Wumpus. Game over...");
+				System.out.println("Agent has died from the Wumpus. Game over...");
 				System.out.println("Current cell: " + cell);
 				return;
 			}
 			if (cell.isHolePresent()){
 				isGameOver = true;
-				System.err.println("Agent has fallen into the hole and died. Game over...");
+				System.out.println("Agent has fallen into the hole and died. Game over...");
 				System.out.println("Current cell: " + cell);
 				//return
 			}
 		}else{
-			System.err.println("An attempt to go into the wall. Target cell (row;col): " + targetRow + ';' + targetCol);
+			System.out.println("An attempt to go into the wall. Target cell (row;col): " + targetRow + ';' + targetCol);
+		}
+	}
+
+	public void agentTryGrabTheGold(){
+		if (agent.getCurrentCell().isGoldPresent()){
+			System.out.println("Agent found the gold and took it. Congratulations! You have won!");
+			setGameOver(true);
+		}else{
+			System.out.println("Unsuccessful attempt to grab the gold. There is nothing underneath the agent.");
 		}
 	}
 
@@ -119,7 +128,7 @@ public class WumpusWorld {
 			}
 			val = random.nextDouble();
 			if (val < GOLD_IN_CELL_CHANCE && !isGoldSet){ //gold
-				cell.setWumpusPresent(true);
+				cell.setGoldPresent(true);
 				isGoldSet = true;
 			}
 			val = random.nextDouble();
@@ -160,12 +169,38 @@ public class WumpusWorld {
 
 	public void printStateToConsole(){
 		StringBuilder str = new StringBuilder();
-		for (int row = 0; row < WORLD_SIZE; row++){//rows
-
+		str.append("[W - wupmus|G - gold|X - agent|H - hole|S - smell|I - wind]\n");
+		str.append("Wupmus is ").append(isWumpusAlive?"alive":"dead").append('\n');
+		for (int row = WORLD_SIZE - 1; row > 0; row--){//rows
+			drawRowDelimiter(str);
+			str.append('|');
 			for (int col = 0; col < WORLD_SIZE; col++){//cols
-				//TODO...
+				Cell cell = getCellByCoordinates(row, col);
+				if (agent.getCurrentCell().equals(cell))
+					str.append('X');
+				if (cell.isWumpusPresent())
+					str.append('W');
+				if(cell.isGoldPresent())
+					str.append('G');
+				if(cell.isHolePresent())
+					str.append('H');
+				if(cell.isSmellPresent())
+					str.append('S');
+				if(cell.isWindPresent())
+					str.append('I');
+				str.append('\t').append('|');
 			}
 		}
+		drawRowDelimiter(str);
+		System.out.println(str);
+	}
+
+	private void drawRowDelimiter(StringBuilder str){
+		str.append(' ');
+		for (int i = 0; i < 7 * WORLD_SIZE; i++){
+			str.append("—");
+		}
+		str.append('\n');
 	}
 
 	public void agentShoot(){
