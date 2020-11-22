@@ -1,3 +1,3 @@
 public enum AgentDirection {
-	UP, DOWN, LEFT, RIGHT
+	UP, RIGHT, DOWN, LEFT
 }
