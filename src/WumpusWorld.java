@@ -38,6 +38,7 @@ public class WumpusWorld {
 			//make moves or shoot or grab the gold
 			//tell things to the KnowledgeBase
 			printStateToConsole();
+			isGameOver = true; //TODO
 		}
 	}
 
@@ -115,28 +116,24 @@ public class WumpusWorld {
 	 * Generates Wumpus, golds and holes
 	 */
 	private void generateProps(){
-		boolean isWumpusSet = false;
-		boolean isGoldSet = false;
 		for (Cell cell: world){
 			if (cell.getRow() == 0 && cell.getCol() == 0)
 				continue;
 			double val = random.nextDouble();
-			if (val < WUMPUS_IN_CELL_CHANCE && !isWumpusSet){ //wumpus
-				cell.setWumpusPresent(true);
-				setSmellAround(cell.getRow(), cell.getCol());
-				isWumpusSet = true;
-			}
-			val = random.nextDouble();
-			if (val < GOLD_IN_CELL_CHANCE && !isGoldSet){ //gold
-				cell.setGoldPresent(true);
-				isGoldSet = true;
-			}
-			val = random.nextDouble();
 			if (val < HOLE_IN_CELL_CHANCE){
 				cell.setHolePresent(true);
 				setWindAround(cell.getRow(), cell.getCol());
 			}
 		}
+		int wumpusPos = random.nextInt(WORLD_SIZE*WORLD_SIZE) + 1;
+		Cell wumpusCell = world.get(wumpusPos - 1);
+		wumpusCell.setWumpusPresent(true);
+		setSmellAround(wumpusCell.getRow(), wumpusCell.getCol());
+
+		int goldPos = random.nextInt(WORLD_SIZE*WORLD_SIZE) + 1;
+		Cell goldCell = world.get(goldPos - 1);
+		goldCell.setGoldPresent(true);
+		setSmellAround(goldCell.getRow(), goldCell.getCol());
 	}
 
 	private void setSmellAround(int row, int col){
@@ -171,7 +168,7 @@ public class WumpusWorld {
 		StringBuilder str = new StringBuilder();
 		str.append("[W - wupmus|G - gold|X - agent|H - hole|S - smell|I - wind]\n");
 		str.append("Wupmus is ").append(isWumpusAlive?"alive":"dead").append('\n');
-		for (int row = WORLD_SIZE - 1; row > 0; row--){//rows
+		for (int row = WORLD_SIZE - 1; row >= 0; row--){//rows
 			drawRowDelimiter(str);
 			str.append('|');
 			for (int col = 0; col < WORLD_SIZE; col++){//cols
@@ -188,8 +185,9 @@ public class WumpusWorld {
 					str.append('S');
 				if(cell.isWindPresent())
 					str.append('I');
-				str.append('\t').append('|');
+				str.append("\t\t").append('|');
 			}
+			str.append('\n');
 		}
 		drawRowDelimiter(str);
 		System.out.println(str);
@@ -197,7 +195,7 @@ public class WumpusWorld {
 
 	private void drawRowDelimiter(StringBuilder str){
 		str.append(' ');
-		for (int i = 0; i < 7 * WORLD_SIZE; i++){
+		for (int i = 0; i < 7 * WORLD_SIZE + 5; i++){
 			str.append("—");
 		}
 		str.append('\n');
