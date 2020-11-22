@@ -66,4 +66,15 @@ public class Cell {
 	public void setWindPresent(boolean windPresent) {
 		isWindPresent = windPresent;
 	}
+
+	@Override
+	public String toString() {
+		return "Cell [" + row +
+				";" + col +
+				"]. Wumpus=" + isWumpusPresent +
+				", Gold=" + isGoldPresent +
+				", Hole=" + isHolePresent +
+				", Smell=" + isSmellPresent +
+				", Wind=" + isWindPresent;
+	}
 }
