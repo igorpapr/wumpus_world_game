@@ -133,7 +133,6 @@ public class WumpusWorld {
 		int goldPos = random.nextInt(WORLD_SIZE*WORLD_SIZE) + 1;
 		Cell goldCell = world.get(goldPos - 1);
 		goldCell.setGoldPresent(true);
-		setSmellAround(goldCell.getRow(), goldCell.getCol());
 	}
 
 	private void setSmellAround(int row, int col){
@@ -173,19 +172,32 @@ public class WumpusWorld {
 			str.append('|');
 			for (int col = 0; col < WORLD_SIZE; col++){//cols
 				Cell cell = getCellByCoordinates(row, col);
-				if (agent.getCurrentCell().equals(cell))
+				int letterCounter = 0; //for correct output, used for tabs
+				if (agent.getCurrentCell().equals(cell)){
 					str.append('X');
-				if (cell.isWumpusPresent())
+					letterCounter++;
+				}
+				if (cell.isWumpusPresent()){
 					str.append('W');
-				if(cell.isGoldPresent())
+					letterCounter++;
+				}
+				if(cell.isGoldPresent()){
 					str.append('G');
-				if(cell.isHolePresent())
+					letterCounter++;
+				}
+				if(cell.isHolePresent()){
 					str.append('H');
-				if(cell.isSmellPresent())
+					letterCounter++;
+				}
+				if(cell.isSmellPresent()){
 					str.append('S');
-				if(cell.isWindPresent())
+					letterCounter++;
+				}
+				if(cell.isWindPresent()){
 					str.append('I');
-				str.append("\t\t").append('|');
+					letterCounter++;
+				}
+				str.append((letterCounter>2)?'\t':"\t\t").append('|');
 			}
 			str.append('\n');
 		}
