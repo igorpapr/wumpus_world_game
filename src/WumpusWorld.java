@@ -206,7 +206,6 @@ public class WumpusWorld {
 	}
 
 	private void drawRowDelimiter(StringBuilder str){
-		str.append(' ');
 		for (int i = 0; i < 7 * WORLD_SIZE + 5; i++){
 			str.append("—");
 		}
