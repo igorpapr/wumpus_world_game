@@ -1,59 +1,54 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 public class LogicalExpression {
     private final String symbol;
     private final String connective;
-    private final ArrayList<LogicalExpression> children;
+    private final List<LogicalExpression> children;
 
-    public LogicalExpression(String symbol) {
+    private LogicalExpression(String symbol) {
         this.symbol = symbol;
         this.connective = null;
-        this.children = new ArrayList<>();
+        this.children = Collections.emptyList();
     }
 
-    private LogicalExpression(String connective, ArrayList<LogicalExpression> children) {
+    private LogicalExpression(String connective, List<LogicalExpression> children) {
         this.symbol = null;
         this.connective = connective;
         this.children = children;
     }
 
-    public static LogicalExpression And(ArrayList<LogicalExpression> children) {
+    public static LogicalExpression Symbol(String symbol) {
+        return new LogicalExpression(symbol);
+    }
+
+    public static LogicalExpression And(List<LogicalExpression> children) {
         if (children.size() < 2) throw new IllegalArgumentException("Must be at least 2 operands");
         return new LogicalExpression("and", children);
     }
 
-    public static LogicalExpression Or(ArrayList<LogicalExpression> children) {
+    public static LogicalExpression Or(List<LogicalExpression> children) {
         if (children.size() < 2) throw new IllegalArgumentException("Must be at least 2 operands");
         return new LogicalExpression("or", children);
     }
 
     public static LogicalExpression If(LogicalExpression left, LogicalExpression right) {
-        var res = new ArrayList<LogicalExpression>(2);
-        res.addAll(Arrays.asList(left, right));
-        return new LogicalExpression("if", res);
+        return new LogicalExpression("if", Arrays.asList(left, right));
     }
 
     public static LogicalExpression Iff(LogicalExpression left, LogicalExpression right) {
-        var res = new ArrayList<LogicalExpression>(2);
-        res.addAll(Arrays.asList(left, right));
-        return new LogicalExpression("iff", res);
+        return new LogicalExpression("iff", Arrays.asList(left, right));
     }
 
     public static LogicalExpression Not(LogicalExpression child) {
-        var res = new ArrayList<LogicalExpression>(1);
-        res.addAll(Collections.singletonList(child));
-        return new LogicalExpression("not", res);
+        return new LogicalExpression("not", Collections.singletonList(child));
     }
 
     public void addChildren(LogicalExpression child) {
         children.add(child);
     }
 
-    public ArrayList<String> extractSymbols() {
-        ArrayList<String> res = new ArrayList<>();
+    public List<String> extractSymbols() {
+        List<String> res = new ArrayList<>();
         if (symbol != null) {
             res.add(symbol);
         } else {
@@ -68,12 +63,19 @@ public class LogicalExpression {
         if (symbol != null)
             return model.getOrDefault(symbol, false);
 
+        assert connective != null;
         if (connective.equals("and")) {
-            return children.stream().anyMatch(c -> !c.plTrue(model));
+            for (var child : children) {
+                if (!child.plTrue(model)) return false;
+            }
+            return true;
         }
 
         if (connective.equals("or")) {
-            return children.stream().anyMatch(c -> c.plTrue(model));
+            for (var child : children) {
+                if (child.plTrue(model)) return true;
+            }
+            return false;
         }
 
         if (connective.equals("if")) {
@@ -104,7 +106,7 @@ public class LogicalExpression {
 
     public static boolean ttCheckAll(LogicalExpression KB,
                                      LogicalExpression alpha,
-                                     ArrayList<String> symbols,
+                                     List<String> symbols,
                                      HashMap<String, Boolean> model) {
         if (symbols.isEmpty())
             return !KB.plTrue(model) || alpha.plTrue(model);
@@ -120,5 +122,13 @@ public class LogicalExpression {
         var res = new HashMap<>(model);
         model.put(symbol, value);
         return res;
+    }
+
+    public static void main(String[] args) {
+        LogicalExpression KB = And(Arrays.asList(
+                Iff(Symbol("B_1_1"), Or(Arrays.asList(Symbol("P_1_2"), Symbol("P_2_1")))),
+                Symbol("B_1_1")));
+        LogicalExpression alpha = (Symbol("B_1_1"));
+        System.out.println(ttEntails(KB, alpha));
     }
 }
