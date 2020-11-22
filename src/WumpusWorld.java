@@ -168,6 +168,66 @@ public class WumpusWorld {
 		}
 	}
 
+	public void agentShoot(){
+		switch (agent.getDirection()){
+			case UP:
+				agentShootCol(1);
+				break;
+			case LEFT:
+				agentShootRow(-1);
+				break;
+			case DOWN:
+				agentShootCol(-1);
+				break;
+			case RIGHT:
+				agentShootRow(1);
+				break;
+		}
+		agent.setHasArrow(false);
+	}
+
+	/**
+	 * Agent shoots with his bow in the given direction of current row
+	 * @param qualifier represents the direction of shooting.
+	 *                  The negative value of qualifier is considered as LEFT direction
+	 *                  The positive value of qualifier is considered as RIGHT direction
+	 */
+	private void agentShootRow(int qualifier){
+		int sign = Integer.signum(qualifier);
+		if (sign == 0) throw new RuntimeException("Non-zero value of qualifier expected");
+		int currentRow = agent.getCurrentCell().getCol();
+		for (int i = agent.getCurrentCell().getCol(); i >= 0 && i < WORLD_SIZE ; i += sign){
+			if (getCellByCoordinates(currentRow, i).isWumpusPresent()){
+				isWumpusAlive = false;
+				wumpusLastScream();
+			}
+		}
+	}
+
+
+	/**
+	 * Agent shoots with his bow in the given direction of current column
+	 * @param qualifier represents the direction of shooting.
+	 *                  The negative value of qualifier is considered as DOWN direction
+	 *                  The positive value of qualifier is considered as UP direction
+	 */
+	private void agentShootCol(int qualifier){
+		int sign = Integer.signum(qualifier);
+		if (sign == 0) throw new RuntimeException("Non-zero value of qualifier expected");
+		int currentCol = agent.getCurrentCell().getCol();
+		for (int i = agent.getCurrentCell().getRow(); i >= 0 && i < WORLD_SIZE ; i += sign){
+			if (getCellByCoordinates(i, currentCol).isWumpusPresent()){
+				isWumpusAlive = false;
+				wumpusLastScream();
+			}
+		}
+	}
+
+	private void wumpusLastScream(){
+		agent.setKnowsWumpusAlive(false);
+		//TODO maybe connect to KnowledgeBase here
+	}
+
 	public int getWORLD_SIZE() {
 		return WORLD_SIZE;
 	}
