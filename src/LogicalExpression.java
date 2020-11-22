@@ -99,7 +99,7 @@ public class LogicalExpression {
     public static boolean ttEntails(LogicalExpression KB, LogicalExpression alpha) {
         var symbols = KB.extractSymbols();
         symbols.addAll(alpha.extractSymbols());
-        return false;
+        return ttCheckAll(KB, alpha, symbols, new HashMap<>());
     }
 
     public static boolean ttCheckAll(LogicalExpression KB,
