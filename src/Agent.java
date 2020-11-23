@@ -1,82 +1,94 @@
+import java.util.Collections;
+
 public class Agent {
-	private Cell currentCell;
+    private Cell currentCell;
 
-	private AgentDirection direction = AgentDirection.RIGHT;
+    private AgentDirection direction = AgentDirection.RIGHT;
 
-	private boolean hasArrow = true;
+    private boolean hasArrow = true;
 
-	private boolean knowsWumpusAlive = false;
+    private boolean knowsWumpusAlive = false;
 
-	public void turnRight(){
-		turn(true);
+    private final LogicalExpression KB = LogicalExpression.And(Collections.emptyList());
+
+    public void tell(LogicalExpression expr) {
+    	KB.addChildren(expr);
 	}
 
-	public void turnLeft(){
-		turn(false);
+	public void ask() {
+
 	}
 
-	public void turn(boolean clockwise){
-		switch (this.direction){
-			case RIGHT:
-				if (clockwise) {
-					setDirection(AgentDirection.DOWN);
-				} else {
-					setDirection(AgentDirection.UP);
-				}
-				break;
-			case DOWN:
-				if (clockwise) {
-					setDirection(AgentDirection.LEFT);
-				} else {
-					setDirection(AgentDirection.RIGHT);
-				}
-				break;
-			case UP:
-				if (clockwise) {
-					setDirection(AgentDirection.RIGHT);
-				} else {
-					setDirection(AgentDirection.LEFT);
-				}
-				break;
-			case LEFT:
-				if (clockwise) {
-					setDirection(AgentDirection.UP);
-				} else {
-					setDirection(AgentDirection.DOWN);
-				}
-				break;
-		}
-	}
+    public void turnRight() {
+        turn(true);
+    }
 
-	public Cell getCurrentCell() {
-		return currentCell;
-	}
+    public void turnLeft() {
+        turn(false);
+    }
 
-	public void setCurrentCell(Cell currentCell) {
-		this.currentCell = currentCell;
-	}
+    public void turn(boolean clockwise) {
+        switch (this.direction) {
+            case RIGHT:
+                if (clockwise) {
+                    setDirection(AgentDirection.DOWN);
+                } else {
+                    setDirection(AgentDirection.UP);
+                }
+                break;
+            case DOWN:
+                if (clockwise) {
+                    setDirection(AgentDirection.LEFT);
+                } else {
+                    setDirection(AgentDirection.RIGHT);
+                }
+                break;
+            case UP:
+                if (clockwise) {
+                    setDirection(AgentDirection.RIGHT);
+                } else {
+                    setDirection(AgentDirection.LEFT);
+                }
+                break;
+            case LEFT:
+                if (clockwise) {
+                    setDirection(AgentDirection.UP);
+                } else {
+                    setDirection(AgentDirection.DOWN);
+                }
+                break;
+        }
+    }
 
-	public AgentDirection getDirection() {
-		return direction;
-	}
+    public Cell getCurrentCell() {
+        return currentCell;
+    }
 
-	public void setDirection(AgentDirection direction) {
-		this.direction = direction;
-	}
+    public void setCurrentCell(Cell currentCell) {
+        this.currentCell = currentCell;
+    }
 
-	public boolean isHasArrow() {
-		return hasArrow;
-	}
+    public AgentDirection getDirection() {
+        return direction;
+    }
 
-	public void setHasArrow(boolean hasArrow) {
-		this.hasArrow = hasArrow;
-	}
+    public void setDirection(AgentDirection direction) {
+        this.direction = direction;
+    }
 
-	public boolean isKnowsWumpusAlive() {
-		return knowsWumpusAlive;
-	}
+    public boolean isHasArrow() {
+        return hasArrow;
+    }
 
-	public void setKnowsWumpusAlive(boolean knowsWumpusAlive) {
-		this.knowsWumpusAlive = knowsWumpusAlive;
-	}
+    public void setHasArrow(boolean hasArrow) {
+        this.hasArrow = hasArrow;
+    }
+
+    public boolean isKnowsWumpusAlive() {
+        return knowsWumpusAlive;
+    }
+
+    public void setKnowsWumpusAlive(boolean knowsWumpusAlive) {
+        this.knowsWumpusAlive = knowsWumpusAlive;
+    }
 }

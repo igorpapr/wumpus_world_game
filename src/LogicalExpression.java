@@ -22,12 +22,10 @@ public class LogicalExpression {
     }
 
     public static LogicalExpression And(List<LogicalExpression> children) {
-        if (children.size() < 2) throw new IllegalArgumentException("Must be at least 2 operands");
         return new LogicalExpression("and", children);
     }
 
     public static LogicalExpression Or(List<LogicalExpression> children) {
-        if (children.size() < 2) throw new IllegalArgumentException("Must be at least 2 operands");
         return new LogicalExpression("or", children);
     }
 
