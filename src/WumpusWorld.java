@@ -34,15 +34,75 @@ public class WumpusWorld {
         world.startGame();
     }
 
-	public void startGame(){
-		while(!isGameOver){
-			//think with the KnowledgeBase
-			//make moves or shoot or grab the gold
-			//tell things to the KnowledgeBase
-			printStateToConsole();
-			isGameOver = true; //TODO
-		}
-	}
+    public void startGame() {
+        agent.tell(LogicalExpression.Symbol("OK_0_0"));
+        while (!isGameOver) {
+            //think with the KnowledgeBase
+            //make moves or shoot or grab the gold
+            //tell things to the KnowledgeBase
+            printStateToConsole();
+            Cell agentCell = agent.getCurrentCell();
+            int row = agentCell.getRow();
+            int col = agentCell.getCol();
+            String coords = String.format("_%d_%d", col, row);
+
+            if (agentCell.isGoldPresent()) {
+                agentTryGrabTheGold();
+                break;
+            }
+
+            if (agentCell.isWindPresent()) {
+                LogicalExpression B = LogicalExpression.Symbol("B" + coords);
+                agent.tell(B);
+                var ors = getBorderingCells(col, row)
+                        .stream()
+                        .map(c -> LogicalExpression.Symbol(String.format("P_%d_%d", c.getCol(), c.getRow())))
+                        .collect(Collectors.toList());
+                agent.tell(LogicalExpression.Iff(
+                        B,
+                        LogicalExpression.Or(ors)
+                ));
+            } else {
+                LogicalExpression B = LogicalExpression.Not(LogicalExpression.Symbol("B" + coords));
+                agent.tell(B);
+                var ands = getBorderingCells(col, row)
+                        .stream()
+                        .map(c -> LogicalExpression.Not(
+                                LogicalExpression.Symbol(String.format("P_%d_%d", c.getCol(), c.getRow()))))
+                        .collect(Collectors.toList());
+                agent.tell(LogicalExpression.Iff(
+                        B,
+                        LogicalExpression.And(ands)
+                ));
+            }
+
+            if (agentCell.isSmellPresent()) {
+                LogicalExpression S = LogicalExpression.Symbol("S" + coords);
+                agent.tell(S);
+                var ors = getBorderingCells(col, row)
+                        .stream()
+                        .map(c -> LogicalExpression.Symbol(String.format("W_%d_%d", c.getCol(), c.getRow())))
+                        .collect(Collectors.toList());
+                agent.tell(LogicalExpression.Iff(
+                        S,
+                        LogicalExpression.Or(ors)
+                ));
+            } else {
+                LogicalExpression S = LogicalExpression.Not(LogicalExpression.Symbol("S" + coords));
+                agent.tell(S);
+                var ands = getBorderingCells(col, row)
+                        .stream()
+                        .map(c -> LogicalExpression.Not(
+                                LogicalExpression.Symbol(String.format("W_%d_%d", c.getCol(), c.getRow()))))
+                        .collect(Collectors.toList());
+                agent.tell(LogicalExpression.Iff(
+                        S,
+                        LogicalExpression.And(ands)
+                ));
+            }
+            isGameOver = true; //TODO
+        }
+    }
 
     public Cell getCellByCoordinates(int row, int col) {
         return world.stream()
