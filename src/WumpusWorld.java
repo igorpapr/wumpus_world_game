@@ -141,10 +141,17 @@ public class WumpusWorld {
         for (var d : Arrays.asList(AgentDirection.UP, AgentDirection.RIGHT, AgentDirection.DOWN, AgentDirection.LEFT)) {
             Cell cell = agentGetRelativeCell(d);
             if (cell == null) continue;
+            String aCoords = String.format("_%d_%d", agent.getCurrentCell().getCol(), agent.getCurrentCell().getRow());
             String coords = String.format("_%d_%d", cell.getCol(), cell.getRow());
-            LogicalExpression alpha = And(Arrays.asList(
-                    Not(Symbol("W" + coords)),
-                    Not(Symbol("P" + coords))
+            LogicalExpression alpha = Or(Arrays.asList(
+                    And(Arrays.asList(
+                            Not(Symbol("B" + aCoords)),
+                            Not(Symbol("S" + aCoords))
+                    )),
+                    And(Arrays.asList(
+                            Not(Symbol("W" + coords)),
+                            Not(Symbol("P" + coords))
+                    ))
             ));
             if (agent.ask(alpha)) return d;
         }

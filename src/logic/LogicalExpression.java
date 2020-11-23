@@ -43,7 +43,23 @@ public class LogicalExpression {
         return new LogicalExpression("not", Collections.singletonList(child));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LogicalExpression that = (LogicalExpression) o;
+        return Objects.equals(symbol, that.symbol) &&
+                Objects.equals(connective, that.connective) &&
+                children.equals(that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(symbol, connective, children);
+    }
+
     public void addChildren(LogicalExpression child) {
+        if (children.contains(child)) return;
         children.add(child);
     }
 
@@ -99,9 +115,25 @@ public class LogicalExpression {
     }
 
     public static boolean ttEntails(LogicalExpression KB, LogicalExpression alpha) {
+        System.out.println(KB.children.size());
+        System.out.println(KB);
         var symbols = KB.extractSymbols();
         symbols.addAll(alpha.extractSymbols());
         return ttCheckAll(KB, alpha, symbols, new HashMap<>());
+    }
+
+    @Override
+    public String toString() {
+        if (symbol != null) return symbol;
+        StringBuilder res = new StringBuilder();
+        res
+                .append('(')
+                .append(connective);
+        for (var child : children) {
+            res.append(' ').append(child.toString());
+        }
+        res.append(')');
+        return res.toString();
     }
 
     public static boolean ttCheckAll(LogicalExpression KB,
