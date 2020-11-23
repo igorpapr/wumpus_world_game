@@ -1,4 +1,8 @@
+import logic.LogicalExpression;
+
 import java.util.Collections;
+
+import static logic.LogicalExpression.And;
 
 public class Agent {
     private Cell currentCell;
@@ -9,7 +13,7 @@ public class Agent {
 
     private boolean knowsWumpusAlive = false;
 
-    private final LogicalExpression KB = LogicalExpression.And(Collections.emptyList());
+    private final LogicalExpression KB = And(Collections.emptyList());
 
     public void tell(LogicalExpression expr) {
     	KB.addChildren(expr);

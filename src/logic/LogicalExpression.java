@@ -1,20 +1,22 @@
+package logic;
+
 import java.util.*;
 
 public class LogicalExpression {
     private final String symbol;
     private final String connective;
-    private final List<LogicalExpression> children;
+    private final ArrayList<LogicalExpression> children;
 
     private LogicalExpression(String symbol) {
         this.symbol = symbol;
         this.connective = null;
-        this.children = Collections.emptyList();
+        this.children = new ArrayList<>();
     }
 
     private LogicalExpression(String connective, List<LogicalExpression> children) {
         this.symbol = null;
         this.connective = connective;
-        this.children = children;
+        this.children = new ArrayList<>(children);
     }
 
     public static LogicalExpression Symbol(String symbol) {
@@ -126,7 +128,8 @@ public class LogicalExpression {
         LogicalExpression KB = And(Arrays.asList(
                 Iff(Symbol("B_1_1"), Or(Arrays.asList(Symbol("P_1_2"), Symbol("P_2_1")))),
                 Symbol("B_1_1")));
-        LogicalExpression alpha = (Symbol("B_1_1"));
+        LogicalExpression alpha = (Symbol("P_1_1"));
+//        logic.LogicalExpression alpha = Or(Arrays.asList(Symbol("P_1_2"), Symbol("P_2_1")));
         System.out.println(ttEntails(KB, alpha));
     }
 }

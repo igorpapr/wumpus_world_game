@@ -1,7 +1,11 @@
+import logic.LogicalExpression;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+
+import static logic.LogicalExpression.*;
 
 public class WumpusWorld {
 
@@ -35,7 +39,7 @@ public class WumpusWorld {
     }
 
     public void startGame() {
-        agent.tell(LogicalExpression.Symbol("OK_0_0"));
+        agent.tell(Symbol("OK_0_0"));
         while (!isGameOver) {
             //think with the KnowledgeBase
             //make moves or shoot or grab the gold
@@ -52,54 +56,55 @@ public class WumpusWorld {
             }
 
             if (agentCell.isWindPresent()) {
-                LogicalExpression B = LogicalExpression.Symbol("B" + coords);
+                LogicalExpression B = Symbol("B" + coords);
                 agent.tell(B);
                 var ors = getBorderingCells(col, row)
                         .stream()
-                        .map(c -> LogicalExpression.Symbol(String.format("P_%d_%d", c.getCol(), c.getRow())))
+                        .map(c -> Symbol(String.format("P_%d_%d", c.getCol(), c.getRow())))
                         .collect(Collectors.toList());
                 agent.tell(LogicalExpression.Iff(
                         B,
-                        LogicalExpression.Or(ors)
+                        Or(ors)
                 ));
             } else {
-                LogicalExpression B = LogicalExpression.Not(LogicalExpression.Symbol("B" + coords));
+                LogicalExpression B = Not(Symbol("B" + coords));
                 agent.tell(B);
                 var ands = getBorderingCells(col, row)
                         .stream()
-                        .map(c -> LogicalExpression.Not(
-                                LogicalExpression.Symbol(String.format("P_%d_%d", c.getCol(), c.getRow()))))
+                        .map(c -> Not(Symbol(String.format("P_%d_%d", c.getCol(), c.getRow()))))
                         .collect(Collectors.toList());
                 agent.tell(LogicalExpression.Iff(
                         B,
-                        LogicalExpression.And(ands)
+                        And(ands)
                 ));
             }
 
             if (agentCell.isSmellPresent()) {
-                LogicalExpression S = LogicalExpression.Symbol("S" + coords);
+                LogicalExpression S = Symbol("S" + coords);
                 agent.tell(S);
                 var ors = getBorderingCells(col, row)
                         .stream()
-                        .map(c -> LogicalExpression.Symbol(String.format("W_%d_%d", c.getCol(), c.getRow())))
+                        .map(c -> Symbol(String.format("W_%d_%d", c.getCol(), c.getRow())))
                         .collect(Collectors.toList());
                 agent.tell(LogicalExpression.Iff(
                         S,
-                        LogicalExpression.Or(ors)
+                        Or(ors)
                 ));
             } else {
-                LogicalExpression S = LogicalExpression.Not(LogicalExpression.Symbol("S" + coords));
+                LogicalExpression S = Not(Symbol("S" + coords));
                 agent.tell(S);
                 var ands = getBorderingCells(col, row)
                         .stream()
-                        .map(c -> LogicalExpression.Not(
-                                LogicalExpression.Symbol(String.format("W_%d_%d", c.getCol(), c.getRow()))))
+                        .map(c -> Not(Symbol(String.format("W_%d_%d", c.getCol(), c.getRow()))))
                         .collect(Collectors.toList());
                 agent.tell(LogicalExpression.Iff(
                         S,
-                        LogicalExpression.And(ands)
+                        And(ands)
                 ));
             }
+
+            agent.ask();
+
             isGameOver = true; //TODO
         }
     }
@@ -129,10 +134,10 @@ public class WumpusWorld {
                 .orElse(null);
     }
 
-    public void agentTryGoForward() {
+    public Cell agentGetRelativeCell(AgentDirection direction) {
         int targetRow = agent.getCurrentCell().getRow();
         int targetCol = agent.getCurrentCell().getCol();
-        switch (agent.getDirection()) {
+        switch (direction) {
             case UP:
                 targetCol += 1;
                 break;
@@ -146,7 +151,11 @@ public class WumpusWorld {
                 targetCol = +1;
                 break;
         }
-        Cell cell = getCellByCoordinates(targetRow, targetCol);
+        return getCellByCoordinates(targetRow, targetCol);
+    }
+
+    public void agentTryGoForward() {
+        Cell cell = agentGetRelativeCell(agent.getDirection());
         if (cell != null) {
             agent.setCurrentCell(cell);
             if (cell.isWumpusPresent() && isWumpusAlive) {
@@ -162,7 +171,7 @@ public class WumpusWorld {
                 //return
             }
         } else {
-            System.out.println("An attempt to go into the wall. Target cell (row;col): " + targetRow + ';' + targetCol);
+            System.out.println("An attempt to go into the wall.");
         }
     }
 
