@@ -1,6 +1,7 @@
 import logic.LogicalExpression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -39,7 +40,6 @@ public class WumpusWorld {
     }
 
     public void startGame() {
-        agent.tell(Symbol("OK_0_0"));
         while (!isGameOver) {
             //think with the KnowledgeBase
             //make moves or shoot or grab the gold
@@ -50,6 +50,9 @@ public class WumpusWorld {
             int col = agentCell.getCol();
             String coords = String.format("_%d_%d", col, row);
 
+            agentTell(Not(Symbol("P" + coords)));
+            agentTell(Not(Symbol("W" + coords)));
+
             if (agentCell.isGoldPresent()) {
                 agentTryGrabTheGold();
                 break;
@@ -57,55 +60,51 @@ public class WumpusWorld {
 
             if (agentCell.isWindPresent()) {
                 LogicalExpression B = Symbol("B" + coords);
-                agent.tell(B);
+                agentTell(B);
                 var ors = getBorderingCells(col, row)
                         .stream()
                         .map(c -> Symbol(String.format("P_%d_%d", c.getCol(), c.getRow())))
                         .collect(Collectors.toList());
-                agent.tell(LogicalExpression.Iff(
+                agentTell(LogicalExpression.Iff(
                         B,
                         Or(ors)
                 ));
             } else {
                 LogicalExpression B = Not(Symbol("B" + coords));
-                agent.tell(B);
-                var ands = getBorderingCells(col, row)
+                agentTell(B);
+                getBorderingCells(col, row)
                         .stream()
                         .map(c -> Not(Symbol(String.format("P_%d_%d", c.getCol(), c.getRow()))))
-                        .collect(Collectors.toList());
-                agent.tell(LogicalExpression.Iff(
-                        B,
-                        And(ands)
-                ));
+                        .forEach(this::agentTell);
             }
 
             if (agentCell.isSmellPresent()) {
                 LogicalExpression S = Symbol("S" + coords);
-                agent.tell(S);
+                agentTell(S);
                 var ors = getBorderingCells(col, row)
                         .stream()
                         .map(c -> Symbol(String.format("W_%d_%d", c.getCol(), c.getRow())))
                         .collect(Collectors.toList());
-                agent.tell(LogicalExpression.Iff(
+                agentTell(LogicalExpression.Iff(
                         S,
                         Or(ors)
                 ));
             } else {
                 LogicalExpression S = Not(Symbol("S" + coords));
-                agent.tell(S);
-                var ands = getBorderingCells(col, row)
+                agentTell(S);
+                getBorderingCells(col, row)
                         .stream()
                         .map(c -> Not(Symbol(String.format("W_%d_%d", c.getCol(), c.getRow()))))
-                        .collect(Collectors.toList());
-                agent.tell(LogicalExpression.Iff(
-                        S,
-                        And(ands)
-                ));
+                        .forEach(this::agentTell);
+//                        .collect(Collectors.toList());
+
             }
 
-            agent.ask();
+            var direction = agentAsk();
+            agent.setDirection(direction);
+            agentTryGoForward();
 
-            isGameOver = true; //TODO
+//            isGameOver = true; //TODO
         }
     }
 
@@ -132,6 +131,24 @@ public class WumpusWorld {
                 .filter(Cell::isWumpusPresent)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void agentTell(LogicalExpression expr) {
+        agent.tell(expr);
+    }
+
+    public AgentDirection agentAsk() {
+        for (var d : Arrays.asList(AgentDirection.UP, AgentDirection.RIGHT, AgentDirection.DOWN, AgentDirection.LEFT)) {
+            Cell cell = agentGetRelativeCell(d);
+            if (cell == null) continue;
+            String coords = String.format("_%d_%d", cell.getCol(), cell.getRow());
+            LogicalExpression alpha = And(Arrays.asList(
+                    Not(Symbol("W" + coords)),
+                    Not(Symbol("P" + coords))
+            ));
+            if (agent.ask(alpha)) return d;
+        }
+        return agent.getDirection();
     }
 
     public Cell agentGetRelativeCell(AgentDirection direction) {

@@ -19,8 +19,8 @@ public class Agent {
     	KB.addChildren(expr);
 	}
 
-	public void ask() {
-
+	public boolean ask(LogicalExpression alpha) {
+        return LogicalExpression.ttEntails(KB, alpha);
 	}
 
     public void turnRight() {
